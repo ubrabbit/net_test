@@ -32,11 +32,14 @@ class CTcpServer( object ):
                 if not message:
                         break
                 print_empty(2)
+
+                str_list = unpack_hex_string(message)
                 notify_console(
                         "tcp_server recv from: %s:%s data: '%s' len: %s bytes"\
-                        %(get_string(_ip),get_string(_port), get_string(message),len(message))
+                        %(get_string(_ip),get_string(_port), get_string(str_list),len(message))
                         )
 
+                message = "".join( list(str_list) )
                 notify_console("server respond: '%s'"%message)
                 sockfd.sendall( message )
 
@@ -54,8 +57,11 @@ class CUdpServer( DatagramServer ):
     def handle(self, message, address):
         _ip, _port = address
         print_empty(2)
-        notify_console("udp_server recv from %s:%s data: '%s' len: %s bytes"%(_ip,_port, get_string(message), len(message) ))
 
+        str_list = unpack_hex_string(message)
+        notify_console("udp_server recv from %s:%s data: '%s' len: %s bytes"%(_ip,_port, get_string(str_list), len(message) ))
+
+        message = "".join( list(str_list) )
         notify_console("server respond: '%s'"%message)
         self.socket.sendto(message, address)
 
@@ -69,5 +75,5 @@ def start_server_udp(ip="127.0.0.1",port=10002):
     obj_server = CUdpServer( "%s:%s"%(ip,port) )
     obj_server.serve_forever()
 
-#start_server_udp()
-start_server_tcp()
+start_server_udp()
+#start_server_tcp()

@@ -8,6 +8,7 @@ import gevent
 
 import sys
 import socket
+import argparse
 
 try:
         from common import *
@@ -151,9 +152,11 @@ if not globals().has_key("g_tcp_container"):
     g_tcp_container = CTcpContainer()
 
 
+test_message = pack_hex_string("BBB1B2")
+
 glist = [
     gevent.spawn( start_tcp_listen ),
-    gevent.spawn( tcp_send_packet, "memeda","127.0.0.1",10001 ),
+    gevent.spawn( tcp_send_packet, test_message,"127.0.0.1",10001 ),
 ]
 gevent.joinall(glist)
 

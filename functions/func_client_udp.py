@@ -47,7 +47,7 @@ class CUdpClient(object):
         self._sockfd = None
         self.ip = ip
         self.port = port
-        
+
         self.idx = idx
 
 
@@ -56,11 +56,12 @@ class CUdpClient(object):
         self._sockfd = socket.socket(type=socket.SOCK_DGRAM)
         self._sockfd.connect(address)
 
+        message = pack_hex_string( message )
         notify_console(
                 "udp_client_%s Send '%s' len=%s bytes to %s:%s"\
                 %(self.idx, get_string(message),len(message),self.ip,self.port)
                 )
-        self._sockfd.send(message)
+        self._sockfd.sendall(message)
         data, address = self._sockfd.recvfrom( RECV_BUFFER_SIZE )
         notify_console(
                 "udp_client_%s Recv Respond '%s' len=%s bytes"\
@@ -83,5 +84,5 @@ if not globals().has_key("g_udp_container"):
     g_udp_container = CUdpContainer()
 
 
-udp_send_packet("127.0.0.1",10002,"ouba")
-udp_send_packet("127.0.0.1",10002,"ouba2")
+udp_send_packet("127.0.0.1",10002,"BCDF")
+udp_send_packet("127.0.0.1",10002,"DDDD")

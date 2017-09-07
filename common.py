@@ -4,6 +4,7 @@ import sys
 import os
 import hashlib
 import random
+import struct
 
 import chardet
 import time
@@ -241,3 +242,44 @@ def notify_console(msg):
 def print_empty(line_cnt=1):
         for i in xrange(line_cnt):
                 print ""
+
+
+#将字符串转换成16进制，忽略空格和换行符等特殊字符
+def pack_hex_string( base_code ):
+        base_code = base_code.strip()
+        base_list = list(base_code)
+        code_list = []
+
+        while base_list:
+                str_1 = ""
+                str_2 = ""
+                while not str_1 or not str_2:
+                        if not base_list:
+                                break
+                        code = base_list.pop( 0 )
+                        code = code.strip()
+                        if not code:
+                                continue
+                        if not str_1:
+                                str_1 = code
+                        elif not str_2:
+                                str_2 = code
+
+                value = int( "%s%s"%(str_1,str_2), 16 )   #字符串转换成16进制
+                value = struct.pack('B',value)         #转换成字节流，“B“为格式符，代表一个unsigned char （具体请查阅struct）
+                code_list.append( value )
+        return "".join(code_list)
+
+
+def unpack_hex_int( base_code ):
+        b_len = len(base_code)
+        v_list = struct.unpack('B'*b_len,base_code)
+        return v_list
+
+
+def unpack_hex_string( base_code ):
+        code_list = []
+        v_list = unpack_hex_int( base_code )
+        for value in v_list:
+                code_list.append( hex(value) )
+        return code_list
