@@ -2,6 +2,9 @@
 
 """
 """
+from gevent import monkey;monkey.patch_all()
+from gevent import pool
+import gevent
 
 import sys
 import copy
@@ -16,6 +19,7 @@ from PyQt4 import QtCore, QtGui
 from common import *
 import console_log
 
+import functions
 import ui_template
 
 
@@ -143,6 +147,12 @@ class CInterface(object):
                 #--------------------- 各个子界面的初始化
                 self.Instruction_Init()
 
+                self.listWidget_main.insertItem(1,self.m_Parent.tr("客户端"))
+                self.listWidget_main.insertItem(2,self.m_Parent.tr("服务器"))
+
+                self.graphStack_main.addWidget( ui_template.ui_netclient.init_template(self.m_Parent) )
+                self.graphStack_main.addWidget( ui_template.ui_netserver.init_template(self.m_Parent) )
+
 
         def StatusBar_Init(self):
                 menubar=self.m_Parent.menuBar()
@@ -195,6 +205,21 @@ class CInterface(object):
                 self.graphStack_main.addWidget(tipWidget)
 
 
+def mainloop(app):
+    while True:
+        app.processEvents()
+        print "mainloop "
+        while app.hasPendingEvents():
+            app.processEvents()
+            gevent.sleep(0)
+        gevent.sleep(0) # don't appear to get here but cooperate again
+
+
+def testprint():
+    print 'this is running'
+    gevent.spawn_later(30, testprint)
+
+
 def init_interface():
         ui_template.init_template()
 
@@ -202,7 +227,14 @@ def init_interface():
         window = CApp()
         window.show()
         app.installEventFilter(window)
-        sys.exit(app.exec_())
+
+        glist = [
+                gevent.spawn( functions.init_functions ),
+                gevent.spawn( testprint ),
+                gevent.spawn( mainloop, app ),
+        ]
+        gevent.joinall( glist )
+        #sys.exit(app.exec_())
 
 
 if __name__ == "__main__":

@@ -75,5 +75,7 @@ def start_server_udp(ip="127.0.0.1",port=10002):
     obj_server = CUdpServer( "%s:%s"%(ip,port) )
     obj_server.serve_forever()
 
-start_server_udp()
-#start_server_tcp()
+
+if __name__ == "__main__":
+    start_server_udp()
+    #start_server_tcp()

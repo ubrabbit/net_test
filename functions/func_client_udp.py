@@ -84,5 +84,6 @@ if not globals().has_key("g_udp_container"):
     g_udp_container = CUdpContainer()
 
 
-udp_send_packet("127.0.0.1",10002,"BCDF")
-udp_send_packet("127.0.0.1",10002,"DDDD")
+if __name__ == "__main__":
+    udp_send_packet("127.0.0.1",10002,"BCDF")
+    udp_send_packet("127.0.0.1",10002,"DDDD")

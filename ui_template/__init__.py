@@ -182,5 +182,36 @@ class CCombo(CObjectBase):
                 self.combo_obj.setCurrentIndex( index )
 
 
+class CTemplateBase(CObjectBase):
+
+        def __init__(self, parent):
+                super( CTemplateBase, self).__init__(parent)
+                self.main_Widget = QtGui.QWidget(parent)
+                self.main_Layout = None
+
+
+        def new_label(self, msg):
+                obj_label=QtGui.QLabel(self.tr(msg))
+                obj_label.setFont(QtGui.QFont('微软雅黑',10))
+                return obj_label
+
+
+        def get_mainWidget(self):
+                return self.main_Widget
+
+
+        def get_mainLayout(self):
+                return self.main_Layout
+
+
+        def init_interface(self):
+                pass
+
+
+        def new_combo(self):
+                return CCombo(self.m_Parent)
+
+
 def init_template():
-        pass
+        import ui_netclient
+        import ui_netserver

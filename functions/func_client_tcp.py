@@ -43,8 +43,7 @@ class CTcpContainer(object):
         obj_client = CTcpClient( self.current_idx, ip, port )
         self.client_list[ self.current_idx ] = obj_client
         self.connect_pool.spawn( obj_client.connect_server )
-        if len(self.connect_pool)==1:
-            self.connect_pool.join()
+
         return obj_client
 
 
@@ -68,21 +67,26 @@ class CTcpClient(object):
         self.packet_queue = Queue()
 
 
-    def _is_active(self):
+    def is_active(self):
         if not self._sockfd or self._sockfd.closed:
             return False
         return True
 
 
-    def _do_disconnect(self):
+    def get_idx(self):
+        return self.idx
+
+
+    def do_disconnect(self):
         self._need_close = True
         if self._sockfd and not self._sockfd.closed:
             self._sockfd.close()
 
 
     def connect_server(self):
-        self._sockfd = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._sockfd.connect( (self.ip,self.port) )
+        with gevent.Timeout(10):
+            self._sockfd = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self._sockfd.connect( (self.ip,self.port) )
 
         notify_console("tcp_client_%s connect start"%self.idx)
         self.connect_pool.spawn( self.connect_send_dispatch )
@@ -92,7 +96,7 @@ class CTcpClient(object):
 
 
     def connect_send_dispatch(self):
-        while not self._need_close and self._is_active():
+        while not self._need_close and self.is_active():
             try:
                 message = self.packet_queue.get_nowait()
 
@@ -109,11 +113,11 @@ class CTcpClient(object):
             except Exception,e:
                 debug_print()
                 break
-        self._do_disconnect()
+        self.do_disconnect()
 
 
     def connect_listen_dispatch(self):
-        while not self._need_close and self._is_active():
+        while not self._need_close and self.is_active():
             try:
                 message = self._sockfd.recv( RECV_BUFFER_SIZE )
                 if not message:
@@ -125,7 +129,7 @@ class CTcpClient(object):
             except Exception,e:
                 debug_print()
                 break
-        self._do_disconnect()
+        self.do_disconnect()
 
 
     def tcp_send_packet(self, message):
@@ -137,7 +141,13 @@ def start_tcp_listen():
     g_tcp_container.init_tcp_listen()
 
 
-def tcp_send_packet(message, ip, port, idx=0):
+def tcp_new_connect( ip, port ):
+    global g_tcp_container
+    client_obj = g_tcp_container.new_connect( ip, port )
+    return client_obj
+
+
+def tcp_send_packet(ip, port, message, idx=0):
     global g_tcp_container
 
     if idx <= 0:
@@ -145,6 +155,7 @@ def tcp_send_packet(message, ip, port, idx=0):
     else:
         client_obj = g_tcp_container.get_connect( idx )
     client_obj.tcp_send_packet( message )
+    return client_obj
 
 
 if not globals().has_key("g_tcp_container"):
@@ -152,11 +163,12 @@ if not globals().has_key("g_tcp_container"):
     g_tcp_container = CTcpContainer()
 
 
-test_message = pack_hex_string("BBB1B2")
+if __name__ == "__main__":
+    test_message = pack_hex_string("BBB1B2")
 
-glist = [
-    gevent.spawn( start_tcp_listen ),
-    gevent.spawn( tcp_send_packet, test_message,"127.0.0.1",10001 ),
-]
-gevent.joinall(glist)
+    glist = [
+        gevent.spawn( start_tcp_listen ),
+        gevent.spawn( tcp_send_packet,"127.0.0.1",10001,test_message ),
+    ]
+    gevent.joinall(glist)
 
