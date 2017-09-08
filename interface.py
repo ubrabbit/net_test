@@ -2,8 +2,6 @@
 
 """
 """
-from gevent import monkey;monkey.patch_all()
-from gevent import pool
 import gevent
 
 import sys
@@ -29,7 +27,7 @@ QtCore.QTextCodec.setCodecForCStrings(QtCore.QTextCodec.codecForName("utf8"))
 QtCore.QTextCodec.setCodecForLocale(QtCore.QTextCodec.codecForName("system"))
 
 
-DEFINE_REDIRECT_STDOUT = 1
+DEFINE_REDIRECT_STDOUT = 0
 
 
 class CApp(QtGui.QMainWindow):
@@ -45,7 +43,24 @@ class CApp(QtGui.QMainWindow):
 
 
         def __del__(self):
+                obj_config = get_config_obj()
+                print "set quit"
+                obj_config.set_quit()
                 console_log.Console_Free()
+
+
+        def closeEvent(self, event):
+                reply = QtGui.QMessageBox.question(self, 'Message',
+                        "Are you sure to quit?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+
+                obj_config = get_config_obj()
+                if reply == QtGui.QMessageBox.Yes:
+                        safe_call( obj_config.set_quit )
+                        event.accept()
+                else:
+                        event.ignore()
+
+
 
         def GetAbout(self):
                 sCode=\
@@ -156,7 +171,7 @@ class CInterface(object):
 
         def StatusBar_Init(self):
                 menubar=self.m_Parent.menuBar()
-                helpMenu=menubar.addMenu(self.m_Parent.tr("帮助"))
+                #helpMenu=menubar.addMenu(self.m_Parent.tr("帮助"))
 
                 self.m_Parent.statusBar()
 
@@ -168,7 +183,7 @@ class CInterface(object):
                 exitAction.setStatusTip(self.m_Parent.tr("Ctrl+Q 退出程序"))
                 #选定特定的动作，发出触发信号。该信号与QtGui.QApplication部件的quit()方法
                 #相关联，这将会终止应用程序。
-                exitAction.triggered.connect(QtGui.qApp.quit)
+                exitAction.triggered.connect( self.Signal_Quit )
 
                 helpAction=QtGui.QAction(QtGui.QIcon(""),self.m_Parent.tr("说明"),self.m_Parent)
                 helpAction.setShortcut("Ctrl+H")
@@ -179,8 +194,8 @@ class CInterface(object):
                 aboutAction.setStatusTip(self.m_Parent.tr("程序版本和作者信息"))
                 aboutAction.triggered.connect(self.m_Parent.GetAbout)
 
-                helpMenu.addAction(helpAction)
-                helpMenu.addAction(aboutAction)
+                #helpMenu.addAction(helpAction)
+                #helpMenu.addAction(aboutAction)
 
                 toolBar=self.m_Parent.addToolBar(self.m_Parent.tr(""))
                 toolBar.addAction(exitAction)
@@ -188,6 +203,14 @@ class CInterface(object):
 
         def Signal_Init(self):
                 pass
+
+
+        def Signal_Quit(self, *param):
+            print "Signal_Quit  ",param
+            obj_config = get_config_obj()
+            obj_config.set_quit()
+            sys.exit( 0 )
+            #QtGui.qApp.quit( *param )
 
 
         def Instruction_Init(self):
@@ -206,12 +229,16 @@ class CInterface(object):
 
 
 def mainloop(app):
-    while True:
+    while is_process_alive():
         app.processEvents()
-        while app.hasPendingEvents():
+        while app.hasPendingEvents() and is_process_alive():
             app.processEvents()
             gevent.sleep(0)
+
         gevent.sleep(0) # don't appear to get here but cooperate again
+
+    obj_config = get_config_obj()
+    obj_config.set_quit()
 
 
 def testprint():

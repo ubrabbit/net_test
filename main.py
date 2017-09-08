@@ -2,6 +2,8 @@
 
 """
 """
+from gevent import monkey;monkey.patch_all()
+import gevent
 
 import sys
 import os
@@ -14,7 +16,6 @@ from PyQt4 import QtCore, QtGui
 from common import *
 
 import interface
-import exec_test
 
 #显示中文
 QtCore.QTextCodec.setCodecForTr(QtCore.QTextCodec.codecForName("utf8"))

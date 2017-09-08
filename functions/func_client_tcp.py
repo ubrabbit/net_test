@@ -30,8 +30,8 @@ class CTcpContainer(CNotifyObject):
 
     def init_tcp_listen(self):
         def contarner_heart():
-            while True:
-                gevent.sleep( 60 )
+            while is_process_alive():
+                gevent.sleep( 2 )
 
         self.connect_pool.spawn( contarner_heart )
         self.connect_pool.join()
@@ -102,7 +102,7 @@ class CTcpClient(CNotifyObject):
 
 
     def connect_send_dispatch(self):
-        while not self._need_close and self.is_active():
+        while not self._need_close and self.is_active() and is_process_alive():
             try:
                 message = self.packet_queue.get_nowait()
                 message = pack_hex_string( message )
@@ -126,7 +126,7 @@ class CTcpClient(CNotifyObject):
 
 
     def connect_listen_dispatch(self):
-        while not self._need_close and self.is_active():
+        while not self._need_close and self.is_active() and is_process_alive():
             try:
                 message = self._sockfd.recv( RECV_BUFFER_SIZE )
                 if not message:

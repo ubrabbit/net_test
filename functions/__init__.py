@@ -20,3 +20,10 @@ def init_functions():
         gevent.spawn( func_server.start_server_listen ),
     ]
     gevent.joinall( glist )
+    print "init_functions finish"
+
+
+def process_quit():
+    import func_server
+
+    func_server.process_quit()

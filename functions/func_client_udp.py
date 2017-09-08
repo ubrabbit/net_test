@@ -24,8 +24,8 @@ class CUdpContainer(CNotifyObject):
 
     def init_udp_listen(self):
         def contarner_heart():
-            while True:
-                gevent.sleep( 60 )
+            while is_process_alive():
+                gevent.sleep( 2 )
 
         self.connect_pool.spawn( contarner_heart )
         self.connect_pool.join()

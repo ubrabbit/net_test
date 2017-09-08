@@ -100,6 +100,8 @@ class CGlobalConfig(object):
                 self.all_logger_list = {}
                 self.obj_container = {}
 
+                self.is_app_quit = False
+
 
         def get_logger(self, logger_name):
             if not logger_name in self.all_logger_list:
@@ -126,6 +128,10 @@ class CGlobalConfig(object):
                 return self.obj_container.get(key, None)
 
 
+        def set_quit(self):
+                self.is_app_quit = True
+
+
 class CNotifyObject(object):
 
 
@@ -148,6 +154,11 @@ class CNotifyObject(object):
     def set_notify_buffer(self, obj_fileEditor):
         buffer_id = id(obj_fileEditor)
         self.notify_buffer = obj_fileEditor
+
+
+def is_process_alive():
+        obj_config = get_config_obj()
+        return not obj_config.is_app_quit
 
 
 def logfile(file_name, msg):

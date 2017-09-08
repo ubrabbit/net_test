@@ -27,16 +27,23 @@ class CServerContainer( CNotifyObject ):
 
     def init_server_listen(self):
         def contarner_heart():
-            while True:
-                gevent.sleep( 60 )
+            while is_process_alive():
+                gevent.sleep( 2 )
 
         self.connect_pool.spawn( contarner_heart )
         self.connect_pool.join()
 
 
+    def process_quit(self):
+        self.connect_pool.kill()
+
+
     def start_tcp_server(self, ip, port):
         global g_server_print
         self.notify_console("start_tcp_server: %s:%s"%( ip,port))
+
+        if self.server_tcp:
+            self.server_tcp.close()
 
         port = int(port)
         obj_server = CTcpServer()
@@ -48,8 +55,10 @@ class CServerContainer( CNotifyObject ):
 
     def start_udp_server(self, ip, port):
         global g_server_print
-
         self.notify_console("start_udp_server: %s:%s"%( ip,port))
+
+        if self.server_udp:
+            self.server_udp.close()
 
         port = int(port)
         obj_server = CUdpServer( "%s:%s"%(ip,port) )
@@ -61,10 +70,17 @@ class CServerContainer( CNotifyObject ):
 
 class CTcpServer( CNotifyObject ):
 
+    def close(self):
+        obj_server = getattr(self, "obj_server", None)
+        if obj_server:
+            obj_server.close()
+            delattr(self,"obj_server")
+
+
     def start_server(self, ip, port):
         port = int(port)
-        obj_server = StreamServer( (ip, port), self.client_connect_tcp )
-        obj_server.serve_forever()
+        self.obj_server = StreamServer( (ip, port), self.client_connect_tcp )
+        self.obj_server.serve_forever()
 
 
     @staticmethod
@@ -130,8 +146,12 @@ def start_udp_server(ip="127.0.0.1",port=10002):
 
 def start_server_listen():
     global g_server_container
-
     g_server_container.init_server_listen()
+
+
+def process_quit():
+    global g_server_container
+    g_server_container.process_quit()
 
 
 if not globals().has_key("g_server_container"):
