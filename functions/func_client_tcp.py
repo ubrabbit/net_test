@@ -60,8 +60,8 @@ class CTcpClient(CNotifyObject):
     def __init__(self, idx, ip, port):
         super(CTcpClient,self).__init__()
         self.idx = idx
-        self._sockfd = None
-        self._need_close = False
+        self.sockfd = None
+        self.need_close = False
 
         self.ip = ip
         self.port = port
@@ -72,7 +72,7 @@ class CTcpClient(CNotifyObject):
 
 
     def is_active(self):
-        if not self._sockfd or self._sockfd.closed:
+        if not self.sockfd or self.sockfd.closed:
             return False
         return True
 
@@ -82,17 +82,17 @@ class CTcpClient(CNotifyObject):
 
 
     def do_disconnect(self):
-        self._need_close = True
-        if self._sockfd and not self._sockfd.closed:
-            self._sockfd.close()
+        self.need_close = True
+        if self.sockfd and not self.sockfd.closed:
+            self.sockfd.close()
 
 
     def connect_server(self):
         self.notify_console("tcp_client_%s connect start"%self.idx)
 
         with gevent.Timeout(15):
-            self._sockfd = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self._sockfd.connect( (self.ip,self.port) )
+            self.sockfd = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.sockfd.connect( (self.ip,self.port) )
 
         self.notify_console("tcp_client_%s connect succ"%self.idx)
         self.connect_pool.spawn( self.connect_send_dispatch )
@@ -102,7 +102,7 @@ class CTcpClient(CNotifyObject):
 
 
     def connect_send_dispatch(self):
-        while not self._need_close and self.is_active() and is_process_alive():
+        while not self.need_close and self.is_active() and is_process_alive():
             try:
                 message = self.packet_queue.get_nowait()
                 message = pack_hex_string( message )
@@ -114,7 +114,7 @@ class CTcpClient(CNotifyObject):
                     "tcp_client_%s Send %s bytes to %s:%s"\
                     %(self.idx,len(message),self.ip,self.port)
                     )
-                self._sockfd.sendall( message )
+                self.sockfd.sendall( message )
                 self._lock.release()
 
             except gevent.queue.Empty:
@@ -126,14 +126,16 @@ class CTcpClient(CNotifyObject):
 
 
     def connect_listen_dispatch(self):
-        while not self._need_close and self.is_active() and is_process_alive():
+        while not self.need_close and self.is_active() and is_process_alive():
             try:
-                message = self._sockfd.recv( RECV_BUFFER_SIZE )
-                if not message:
+                data = self.sockfd.recv( RECV_BUFFER_SIZE )
+                if not data:
                     break
+
+                message = unpack_hex_string( data )
                 self.notify_console(
                     "tcp_client_%s Recv Respond '%s' len=%s bytes"\
-                    %( self.idx,get_string(message),len(message) )
+                    %( self.idx,get_string(message),len(data) )
                     )
             except Exception,e:
                 debug_print()

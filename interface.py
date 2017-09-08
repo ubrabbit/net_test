@@ -27,7 +27,7 @@ QtCore.QTextCodec.setCodecForCStrings(QtCore.QTextCodec.codecForName("utf8"))
 QtCore.QTextCodec.setCodecForLocale(QtCore.QTextCodec.codecForName("system"))
 
 
-DEFINE_REDIRECT_STDOUT = 0
+DEFINE_REDIRECT_STDOUT = 1
 
 
 class CApp(QtGui.QMainWindow):

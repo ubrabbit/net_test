@@ -108,6 +108,9 @@ class CInterfaceUnit(ui_template.CTemplateBase):
         layout_Horizon_1.addWidget( self.button_conn )
 
         layout_Horizon_2_0_0.addWidget( label_input )
+        layout_Horizon_2_0_0.addWidget( self.button_send )
+        layout_Horizon_2_0_0.addStretch(2)
+
         layout_Horizon_2_0_1.addWidget( self.fileEdit_input )
 
         layout_Horizon_2_0_2.addWidget( label_output )
@@ -118,8 +121,13 @@ class CInterfaceUnit(ui_template.CTemplateBase):
         layout_Vector_2_0.addLayout( layout_Horizon_2_0_2 )
         layout_Vector_2_0.addLayout( layout_Horizon_2_0_3 )
 
-        layout_Vector_2_1.addWidget( self.button_send )
-        layout_Vector_2_1.addStretch(2)
+        layout_Vector_2_0.setStretchFactor( layout_Horizon_2_0_0,1 )
+        layout_Vector_2_0.setStretchFactor( layout_Horizon_2_0_1,2 )
+        layout_Vector_2_0.setStretchFactor( layout_Horizon_2_0_2,1 )
+        layout_Vector_2_0.setStretchFactor( layout_Horizon_2_0_3,6 )
+
+        #layout_Vector_2_1.addWidget( self.button_send )
+        #layout_Vector_2_1.addStretch(2)
 
         self.combo_protocol.init_select( ["tcp","udp"] )
         self.combo_protocol.active_event( partial(self.on_combo_actived,"protocol") )

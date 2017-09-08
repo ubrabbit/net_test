@@ -67,10 +67,12 @@ class CUdpClient(CNotifyObject):
                 %(self.idx,len(message),self.ip,self.port)
                 )
         self._sockfd.sendall(message)
+        
         data, address = self._sockfd.recvfrom( RECV_BUFFER_SIZE )
+        message = unpack_hex_string( data )
         self.notify_console(
                 "udp_client_%s Recv Respond '%s' len=%s bytes"\
-                %(self.idx, get_string(data), len(data))
+                %(self.idx, get_string(message), len(data))
                 )
 
 
