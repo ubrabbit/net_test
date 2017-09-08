@@ -208,7 +208,6 @@ class CInterface(object):
 def mainloop(app):
     while True:
         app.processEvents()
-        print "mainloop "
         while app.hasPendingEvents():
             app.processEvents()
             gevent.sleep(0)
@@ -230,7 +229,7 @@ def init_interface():
 
         glist = [
                 gevent.spawn( functions.init_functions ),
-                gevent.spawn( testprint ),
+                #gevent.spawn( testprint ),
                 gevent.spawn( mainloop, app ),
         ]
         gevent.joinall( glist )

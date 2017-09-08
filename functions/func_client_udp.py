@@ -56,10 +56,11 @@ class CUdpClient(object):
         self._sockfd = socket.socket(type=socket.SOCK_DGRAM)
         self._sockfd.connect(address)
 
+        notify_console("udp_client_%s Send Message '%s'"%(self.idx,message))
         message = pack_hex_string( message )
         notify_console(
-                "udp_client_%s Send '%s' len=%s bytes to %s:%s"\
-                %(self.idx, get_string(message),len(message),self.ip,self.port)
+                "udp_client_%s Send %s bytes to %s:%s"\
+                %(self.idx,len(message),self.ip,self.port)
                 )
         self._sockfd.sendall(message)
         data, address = self._sockfd.recvfrom( RECV_BUFFER_SIZE )

@@ -229,6 +229,9 @@ def get_container_obj(name):
 
 
 def notify_console(msg):
+        time_info=time.strftime('%Y-%m-%d %H:%M:%S')
+        msg="[%s] %s"%(time_info,msg)
+
         platform = sys.platform
         #linux是utf-8
         if platform.startswith("linux"):

@@ -84,11 +84,13 @@ class CTcpClient(object):
 
 
     def connect_server(self):
-        with gevent.Timeout(10):
+        notify_console("tcp_client_%s connect start"%self.idx)
+
+        with gevent.Timeout(15):
             self._sockfd = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self._sockfd.connect( (self.ip,self.port) )
 
-        notify_console("tcp_client_%s connect start"%self.idx)
+        notify_console("tcp_client_%s connect succ"%self.idx)
         self.connect_pool.spawn( self.connect_send_dispatch )
         self.connect_pool.spawn( self.connect_listen_dispatch )
         self.connect_pool.join()
@@ -99,11 +101,14 @@ class CTcpClient(object):
         while not self._need_close and self.is_active():
             try:
                 message = self.packet_queue.get_nowait()
+                message = pack_hex_string( message )
 
                 self._lock.acquire()
+
+                notify_console("tcp_client_%s Send Message '%s'"%(self.idx,message))
                 notify_console(
-                    "tcp_client_%s Send message '%s' len=%s bytes to %s:%s"\
-                    %(self.idx,get_string(message),len(message),self.ip,self.port)
+                    "tcp_client_%s Send %s bytes to %s:%s"\
+                    %(self.idx,len(message),self.ip,self.port)
                     )
                 self._sockfd.sendall( message )
                 self._lock.release()
