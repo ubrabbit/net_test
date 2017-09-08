@@ -235,7 +235,7 @@ def mainloop(app):
             app.processEvents()
             gevent.sleep(0)
 
-        gevent.sleep(0) # don't appear to get here but cooperate again
+        gevent.sleep(0.01) # don't appear to get here but cooperate again
 
     obj_config = get_config_obj()
     obj_config.set_quit()
