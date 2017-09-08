@@ -23,7 +23,7 @@ def Console_Init(window):
         log_Edit.setReadOnly(True)
 
         cb_stdout=partial(Stdout_Output,console_Edit)
-        cb_stderr=partial(Stderr_Output,log_Edit)
+        cb_stderr=partial(Stderr_Output,console_Edit,log_Edit)
 
         sys.stdout=EmittingStream(textWritten=cb_stdout)
         sys.stderr=EmittingStream(textWritten=cb_stderr)
@@ -45,12 +45,14 @@ def Stdout_Output(console_Edit,text):
         console_Edit.ensureCursorVisible()
 
 
-def Stderr_Output(log_Edit,text):
+def Stderr_Output(console_Edit,log_Edit,text):
         cursor=log_Edit.textCursor()
         cursor.movePosition(QtGui.QTextCursor.End)
         cursor.insertText(text)
         log_Edit.setTextCursor(cursor)
         log_Edit.ensureCursorVisible()
+
+        Stdout_Output(console_Edit,text)
 
 
 class EmittingStream(QtCore.QObject):

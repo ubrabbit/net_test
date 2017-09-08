@@ -109,12 +109,21 @@ class CInterfaceUnit(ui_template.CTemplateBase):
         self.button_tcp_client = QtGui.QPushButton(self.tr("发送数据"))
 
         layout_Horizon_4_0 = QtGui.QHBoxLayout( )
+        layout_Horizon_4_0_0 = QtGui.QHBoxLayout( )
+        layout_Horizon_4_0_1 = QtGui.QHBoxLayout( )
         layout_Horizon_4_1 = QtGui.QHBoxLayout( )
         layout_Horizon_4_2 = QtGui.QHBoxLayout( )
 
-        layout_Horizon_4_0.addWidget( label_tcp_client )
-        layout_Horizon_4_0.addWidget( self.combo_tcp_client.get_mainWidget() )
-        layout_Horizon_4_0.addStretch(1)
+        layout_Horizon_4_0_0.addWidget( label_tcp_client )
+        layout_Horizon_4_0_0.addWidget( self.combo_tcp_client.get_mainWidget() )
+
+        label_empty = self.new_label("")
+        layout_Horizon_4_0_1.addWidget(label_empty)
+
+        layout_Horizon_4_0.addLayout( layout_Horizon_4_0_0 )
+        layout_Horizon_4_0.addLayout( layout_Horizon_4_0_1 )
+        layout_Horizon_4_0.setStretchFactor( layout_Horizon_4_0_0,1 )
+        layout_Horizon_4_0.setStretchFactor( layout_Horizon_4_0_1,1 )
 
         layout_Horizon_4_1.addWidget( label_tcp_input )
         layout_Horizon_4_1.addWidget( self.button_tcp_client )

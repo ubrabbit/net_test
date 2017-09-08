@@ -86,7 +86,7 @@ class CInterfaceUnit(ui_template.CTemplateBase):
         label_input = self.new_label("输入(忽略所有空格及换行符)：")
         label_output = self.new_label("输出：")
 
-        self.button_conn = QtGui.QPushButton(self.tr("连接"))
+        self.button_conn = QtGui.QPushButton(self.tr("新建连接"))
         self.button_send = QtGui.QPushButton(self.tr("发送"))
 
         self.combo_protocol = self.new_combo()
