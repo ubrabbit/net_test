@@ -16,6 +16,37 @@ except Exception,err:
         from common import *
 
 
+class CServerContainer( object ):
+
+
+    def __init__(self):
+        self.server_tcp = None
+        self.server_udp = None
+        self.connect_pool = pool.Group()
+
+
+    def init_server_listen(self):
+        def contarner_heart():
+            while True:
+                gevent.sleep( 60 )
+
+        self.connect_pool.spawn( contarner_heart )
+        self.connect_pool.join()
+
+
+    def start_tcp_server(self, ip, port):
+        obj_server = CTcpServer()
+        self.server_tcp = obj_server
+        self.connect_pool.spawn( obj_server.start_server, ip, port )
+
+
+    def start_udp_server(self, ip, port):
+        obj_server = CUdpServer( "%s:%s"%(ip,port) )
+
+        self.server_udp = obj_server
+        self.connect_pool.spawn( obj_server.serve_forever )
+
+
 class CTcpServer( object ):
 
     def start_server(self, ip, port):
@@ -66,16 +97,32 @@ class CUdpServer( DatagramServer ):
         self.socket.sendto(message, address)
 
 
-def start_server_tcp(ip="127.0.0.1",port=10001):
-    obj_server = CTcpServer()
-    obj_server.start_server( ip, port )
+def start_tcp_server(ip="127.0.0.1",port=10001):
+    global g_server_container
+    g_server_container.start_tcp_server( ip, port )
 
 
-def start_server_udp(ip="127.0.0.1",port=10002):
-    obj_server = CUdpServer( "%s:%s"%(ip,port) )
-    obj_server.serve_forever()
+def start_udp_server(ip="127.0.0.1",port=10002):
+    global g_server_container
+    g_server_container.start_udp_server( ip, port )
+
+
+def start_server_listen():
+    global g_server_container
+
+    g_server_container.init_server_listen()
+
+
+if not globals().has_key("g_server_container"):
+    global g_server_container
+    g_server_container = CServerContainer()
 
 
 if __name__ == "__main__":
-    start_server_udp()
-    #start_server_tcp()
+
+    glist = [
+        gevent.spawn( start_server_listen ),
+        gevent.spawn( start_tcp_server ),
+        gevent.spawn( start_udp_server ),
+    ]
+    gevent.joinall(glist)

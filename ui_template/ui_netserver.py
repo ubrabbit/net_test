@@ -17,6 +17,8 @@ from common import *
 
 import ui_template
 
+import func_server
+
 
 def init_template(parent):
         obj_ui = CInterfaceUnit(parent)
@@ -37,9 +39,19 @@ class CInterfaceUnit(ui_template.CTemplateBase):
         layout_Horizon_0 = QtGui.QHBoxLayout( )
         layout_Horizon_1 = QtGui.QHBoxLayout( )
         layout_Horizon_2 = QtGui.QHBoxLayout( )
+        layout_Horizon_3 = QtGui.QHBoxLayout( )
+        layout_Horizon_4 = QtGui.QHBoxLayout( )
+        layout_Horizon_5 = QtGui.QHBoxLayout( )
+
+        self.main_Layout.addLayout( layout_Horizon_0 )
+        self.main_Layout.addLayout( layout_Horizon_1 )
+        self.main_Layout.addLayout( layout_Horizon_2 )
+        self.main_Layout.addLayout( layout_Horizon_3 )
 
         label_tcp = self.new_label("TCP服务器")
+        label_tcp_port = self.new_label("TCP端口")
         label_udp = self.new_label("UDP服务器")
+        label_udp_port = self.new_label("UDP端口")
         label_tcp_output = self.new_label("TCP服务器输出")
         label_udp_output = self.new_label("UDP服务器输出")
 
@@ -53,4 +65,49 @@ class CInterfaceUnit(ui_template.CTemplateBase):
 
         self.button_tcp = QtGui.QPushButton(self.tr("开启"))
         self.button_udp = QtGui.QPushButton(self.tr("开启"))
-    
+
+        layout_Vector_1_0 = QtGui.QVBoxLayout()
+        layout_Vector_1_1 = QtGui.QVBoxLayout()
+        layout_Vector_2_0 = QtGui.QVBoxLayout()
+        layout_Vector_2_1 = QtGui.QVBoxLayout()
+
+        layout_Vector_1_0.addWidget( self.fileEdit_tcp )
+        layout_Vector_1_1.addWidget( self.button_tcp )
+        layout_Vector_1_1.addStretch(2)
+
+        layout_Vector_2_0.addWidget( self.fileEdit_udp )
+        layout_Vector_2_1.addWidget( self.button_udp )
+        layout_Vector_2_1.addStretch(2)
+
+        layout_Horizon_0.addWidget( label_tcp )
+        layout_Horizon_0.addWidget( self.lineEdit_tcp_server )
+        layout_Horizon_0.addWidget( label_tcp_port )
+        layout_Horizon_0.addWidget( self.lineEdit_tcp_port )
+        layout_Horizon_0.addWidget( self.button_tcp )
+        layout_Horizon_0.addStretch(1)
+
+        layout_Horizon_1.addLayout( layout_Vector_1_0 )
+        layout_Horizon_1.addLayout( layout_Vector_1_1 )
+
+        layout_Horizon_2.addWidget( label_udp )
+        layout_Horizon_2.addWidget( self.lineEdit_udp_server )
+        layout_Horizon_2.addWidget( label_udp_port )
+        layout_Horizon_2.addWidget( self.lineEdit_udp_port )
+        layout_Horizon_2.addWidget( self.button_udp )
+        layout_Horizon_2.addStretch(1)
+
+        layout_Horizon_3.addLayout( layout_Vector_2_0 )
+        layout_Horizon_3.addLayout( layout_Vector_2_1 )
+
+        #---------------------------- signal -----------------------------------------
+        self.button_tcp.clicked.connect( partial(self.on_button_clicked,"tcp_server") )
+        self.button_udp.clicked.connect( partial(self.on_button_clicked,"udp_server") )
+
+
+    def on_button_clicked(self, flag_name):
+        flag_name = str(flag_name)
+
+        if flag_name=="tcp_server":
+            pass
+        elif flag_name=="udp_server":
+            pass

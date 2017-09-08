@@ -125,6 +125,7 @@ class CInterfaceUnit(ui_template.CTemplateBase):
         self.combo_protocol.active_event( partial(self.on_combo_actived,"protocol") )
         self.combo_protocol.set_select_by_name( "tcp" )
         self.conn_obj = CConnClient("tcp")
+
         #---------------------------- signal -----------------------------------------
         self.button_conn.clicked.connect( partial(self.on_button_clicked,"connect") )
         self.button_send.clicked.connect( partial(self.on_button_clicked,"send") )

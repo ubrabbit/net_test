@@ -16,5 +16,7 @@ def init_functions():
 
     glist = [
         gevent.spawn( func_client_tcp.start_tcp_listen ),
+        gevent.spawn( func_client_udp.start_udp_listen ),
+        gevent.spawn( func_server.start_server_listen ),
     ]
     gevent.joinall( glist )
