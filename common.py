@@ -126,6 +126,30 @@ class CGlobalConfig(object):
                 return self.obj_container.get(key, None)
 
 
+class CNotifyObject(object):
+
+
+    def __init__(self):
+        super( CNotifyObject, self ).__init__()
+        self.notify_buffer = None
+
+
+    def notify_console(self, msg):
+        from PyQt4 import QtGui
+
+        msg = notify_console(msg)
+        if self.notify_buffer:
+                cursor=self.notify_buffer.textCursor()
+                cursor.movePosition(QtGui.QTextCursor.End)
+                msg += "\n"
+                cursor.insertText(msg)
+
+
+    def set_notify_buffer(self, obj_fileEditor):
+        buffer_id = id(obj_fileEditor)
+        self.notify_buffer = obj_fileEditor
+
+
 def logfile(file_name, msg):
         file_name = get_string(file_name)
         msg = get_string(msg)
@@ -240,6 +264,7 @@ def notify_console(msg):
         elif platform.startswith("win"):
                 msg = get_unicode(msg).encode("gbk","ignore")
         print msg
+        return msg
 
 
 def print_empty(line_cnt=1):

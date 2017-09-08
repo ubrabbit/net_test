@@ -20,7 +20,6 @@ import ui_template
 
 import func_client_tcp
 import func_client_udp
-import func_server
 
 
 def init_template(parent):
@@ -29,9 +28,10 @@ def init_template(parent):
         return obj_ui.get_mainWidget()
 
 
-class CConnClient(object):
+class CConnClient( CNotifyObject ):
 
     def __init__(self, protocol):
+        super( CConnClient, self ).__init__()
         self.protocol = protocol
         self.client_obj = None
 
@@ -125,6 +125,12 @@ class CInterfaceUnit(ui_template.CTemplateBase):
         self.combo_protocol.active_event( partial(self.on_combo_actived,"protocol") )
         self.combo_protocol.set_select_by_name( "tcp" )
         self.conn_obj = CConnClient("tcp")
+
+        self.lineEdit_server.setText("127.0.0.1")
+        self.lineEdit_port.setText("10001")
+
+        func_client_tcp.reset_buffer( self.fileEdit_output )
+        func_client_udp.reset_buffer( self.fileEdit_output )
 
         #---------------------------- signal -----------------------------------------
         self.button_conn.clicked.connect( partial(self.on_button_clicked,"connect") )

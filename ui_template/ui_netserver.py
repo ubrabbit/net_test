@@ -99,6 +99,12 @@ class CInterfaceUnit(ui_template.CTemplateBase):
         layout_Horizon_3.addLayout( layout_Vector_2_0 )
         layout_Horizon_3.addLayout( layout_Vector_2_1 )
 
+        self.lineEdit_tcp_server.setText("127.0.0.1")
+        self.lineEdit_tcp_port.setText("10001")
+
+        self.lineEdit_udp_server.setText("127.0.0.1")
+        self.lineEdit_udp_port.setText("10002")
+
         #---------------------------- signal -----------------------------------------
         self.button_tcp.clicked.connect( partial(self.on_button_clicked,"tcp_server") )
         self.button_udp.clicked.connect( partial(self.on_button_clicked,"udp_server") )
@@ -108,6 +114,15 @@ class CInterfaceUnit(ui_template.CTemplateBase):
         flag_name = str(flag_name)
 
         if flag_name=="tcp_server":
-            pass
+            server_ip = self.get_string(self.lineEdit_tcp_server.text())
+            server_port = self.get_string(self.lineEdit_tcp_port.text())
+
+            func_server.reset_buffer( self.fileEdit_tcp )
+            func_server.start_tcp_server( server_ip, server_port )
         elif flag_name=="udp_server":
-            pass
+            server_ip = self.get_string(self.lineEdit_udp_server.text())
+            server_port = self.get_string(self.lineEdit_udp_port.text())
+
+            func_server.reset_buffer( self.fileEdit_udp )
+            func_server.start_udp_server( server_ip, server_port )
+
