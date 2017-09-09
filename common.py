@@ -156,13 +156,13 @@ class CNotifyObject(object):
         self.notify_buffer = obj_fileEditor
 
 
-    def regist_event( proto, event_name, func_key, funcobj ):
+    def regist_event( self, proto, event_name, func_key, funcobj ):
         self.event_callback.setdefault( proto, {} )
         self.event_callback[ proto ].setdefault( event_name, {} )
         self.event_callback[ proto ][ event_name ][ func_key ] = funcobj
 
 
-    def trigger_event( proto, event_name, *param ):
+    def trigger_event( self, proto, event_name, *param ):
         if not proto in self.event_callback:
             return False
         if not event_name in self.event_callback[ proto ]:
@@ -324,7 +324,7 @@ def pack_hex_string( base_code ):
                 value = int( "%s%s"%(str_1,str_2), 16 )   #字符串转换成16进制
                 value = struct.pack('B',value)         #转换成字节流，“B“为格式符，代表一个unsigned char （具体请查阅struct）
                 code_list.append( value )
-        print "code_list is ",code_list
+
         return "".join(code_list)
 
 

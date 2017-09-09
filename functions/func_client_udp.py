@@ -48,32 +48,56 @@ class CUdpClient(CNotifyObject):
 
     def __init__(self, idx, ip, port):
         super(CUdpClient,self).__init__()
-        self._sockfd = None
+        self.sockfd = None
         self.ip = ip
         self.port = port
+        self.client_ip = ""
+        self.client_port = "0"
 
         self.idx = idx
 
 
+    def __repr__(self):
+        return "%s:%s"%( self.client_ip, self.client_port )
+
+
+    def get_log_flag(self):
+        return "%s_%s"%(self.idx,self)
+
+
+    def get_local_address(self):
+        return self.sockfd.getsockname()
+
+
     def udp_send_packet(self, message):
-        address = (self.ip,self.port)
-        self._sockfd = socket.socket(type=socket.SOCK_DGRAM)
-        self._sockfd.connect(address)
+        address = (self.ip,int(self.port))
+        self.sockfd = socket.socket(type=socket.SOCK_DGRAM)
+        self.sockfd.connect(address)
+
+        print "get_local_address  ",self.get_local_address()
 
         self.notify_console("udp_client_%s Send Message '%s'"%(self.idx,message))
         message = pack_hex_string( message )
         self.notify_console(
                 "udp_client_%s Send %s bytes to %s:%s"\
-                %(self.idx,len(message),self.ip,self.port)
+                %(self.get_log_flag(),len(message),self.ip,self.port)
                 )
-        self._sockfd.sendall(message)
+        self.sockfd.sendto(message, address)
         
-        data, address = self._sockfd.recvfrom( RECV_BUFFER_SIZE )
-        message = unpack_hex_string( data )
-        self.notify_console(
-                "udp_client_%s Recv Respond '%s' len=%s bytes"\
-                %(self.idx, get_string(message), len(data))
-                )
+        try:
+            #连接不上时windows会报10054错误
+            data, address = self.sockfd.recvfrom( RECV_BUFFER_SIZE )
+            message = unpack_hex_string( data )
+            self.notify_console(
+                    "udp_client_%s Recv Respond '%s' len=%s bytes"\
+                    %(self.get_log_flag(), get_string(message), len(data))
+                    )
+        except Exception,err:
+            debug_print()
+            self.notify_console(
+                    "udp_client_%s Recv Respond fail"\
+                    %(self.get_log_flag())
+                    )
 
 
 def reset_buffer( obj_fileEditor ):

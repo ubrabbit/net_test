@@ -65,10 +65,20 @@ class CTcpClient(CNotifyObject):
 
         self.ip = ip
         self.port = port
+        self.client_ip = ""
+        self.client_port = "0"
         self.connect_pool = pool.Group()
 
         self._lock = Semaphore(value=1)
         self.packet_queue = Queue()
+
+
+    def __repr__(self):
+        return "%s:%s"%( self.client_ip, self.client_port )
+
+
+    def get_log_flag(self):
+        return "%s_%s"%(self.idx,self)
 
 
     def is_active(self):
@@ -81,38 +91,59 @@ class CTcpClient(CNotifyObject):
         return self.idx
 
 
+    def get_local_address(self):
+        if not self.is_active():
+            return "",""
+        return self.sockfd.getsockname()
+
+
     def do_disconnect(self):
         self.need_close = True
         if self.sockfd and not self.sockfd.closed:
             self.sockfd.close()
 
+        if self.client_ip:
+            self.trigger_event( "tcp", "client_disconn", self.client_ip, self.client_port, self )
+
 
     def connect_server(self):
-        self.notify_console("tcp_client_%s connect start"%self.idx)
+        self.notify_console("tcp_client_%s connect start"%(self.idx))
 
-        with gevent.Timeout(15):
-            self.sockfd = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.sockfd.connect( (self.ip,self.port) )
+        try:
+            conn_succ = False
+            with gevent.Timeout(10):
+                self.sockfd = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.sockfd.connect( (self.ip,self.port) )
+                conn_succ = True
+        except Exception,err:
+            debug_print()
 
-        self.notify_console("tcp_client_%s connect succ"%self.idx)
+        if conn_succ:
+            ip,port = self.get_local_address()
+            self.client_ip = ip
+            self.client_port = port
+            self.notify_console("tcp_client_%s connect succ"%self.get_log_flag())
+            self.trigger_event( "tcp", "client_conn", ip, port, self )
+        else:
+            self.notify_console("tcp_client_%s connect fail"%self.get_log_flag())
+
         self.connect_pool.spawn( self.connect_send_dispatch )
         self.connect_pool.spawn( self.connect_listen_dispatch )
         self.connect_pool.join()
-        self.notify_console("tcp_client_%s connect close"%self.idx)
+        self.notify_console("tcp_client_%s connect close"%self.get_log_flag())
 
 
     def connect_send_dispatch(self):
         while not self.need_close and self.is_active() and is_process_alive():
             try:
                 message = self.packet_queue.get_nowait()
+                self.notify_console("tcp_client_%s Send Message '%s'"%(self.get_log_flag(),message))
+
                 message = pack_hex_string( message )
-
                 self._lock.acquire()
-
-                self.notify_console("tcp_client_%s Send Message '%s'"%(self.idx,message))
                 self.notify_console(
                     "tcp_client_%s Send %s bytes to %s:%s"\
-                    %(self.idx,len(message),self.ip,self.port)
+                    %(self.get_log_flag(),len(message),self.ip,self.port)
                     )
                 self.sockfd.sendall( message )
                 self._lock.release()
@@ -135,7 +166,7 @@ class CTcpClient(CNotifyObject):
                 message = unpack_hex_string( data )
                 self.notify_console(
                     "tcp_client_%s Recv Respond '%s' len=%s bytes"\
-                    %( self.idx,get_string(message),len(data) )
+                    %( self.get_log_flag(),get_string(message),len(data) )
                     )
             except Exception,e:
                 debug_print()
@@ -187,11 +218,11 @@ if not globals().has_key("g_client_print"):
 
 
 if __name__ == "__main__":
-    test_message = pack_hex_string("BBB1B2")
+    test_message = "BBB1B2"
 
     glist = [
         gevent.spawn( start_tcp_listen ),
-        gevent.spawn( tcp_send_packet,"127.0.0.1",10001,test_message ),
+        gevent.spawn( tcp_send_packet,"202.103.191.47",10037,test_message ),
     ]
     gevent.joinall(glist)
 

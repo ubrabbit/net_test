@@ -21,6 +21,7 @@ class CServerContainer( CNotifyObject ):
 
 
     def __init__(self):
+        super( CServerContainer, self ).__init__()
         self.server_tcp = None
         self.server_udp = None
         self.connect_pool = pool.Group()
@@ -75,6 +76,8 @@ class CConnUnit( CNotifyObject ):
 
     def __init__(self, sockfd, proto, ip, port):
         super(CConnUnit,self).__init__()
+        global g_server_print
+
         self.proto = proto
         self.ip = ip
         self.port = port
@@ -83,6 +86,12 @@ class CConnUnit( CNotifyObject ):
         self.sockfd = sockfd
 
         self.need_close = False
+
+        self.set_notify_buffer( g_server_print )
+
+
+    def __repr__(self):
+        return "%s:%s"%(self.ip,self.port)
 
 
     def is_active(self):
@@ -113,8 +122,8 @@ class CConnUnit( CNotifyObject ):
                 print_empty(2)
                 str_list = unpack_hex_string(message)
                 self.notify_console(
-                        "tcp_server recv from: %s:%s data: '%s' len: %s bytes"\
-                        %(get_string(self.ip),get_string(self.port), get_string(str_list),len(message))
+                        "tcp_server recv from: %s data: '%s' len: %s bytes"\
+                        %(get_string(self),get_string(str_list),len(message))
                         )
 
                 self.on_recv_packet( message )
@@ -141,7 +150,6 @@ class CConnUnit( CNotifyObject ):
         while self.is_active():
             try:
                 message = self.packet_queue.get_nowait()
-                print "get data ",message
                 self.sockfd.sendall( message )
             except gevent.queue.Empty:
                 gevent.sleep(0.001)
@@ -152,24 +160,19 @@ class CConnUnit( CNotifyObject ):
 
 
     def udp_client_dispatch(self, message):
-        print "udp_client_dispatch 00000000000000000000000000"
         self.on_new_connect()
         str_list = unpack_hex_string(message)
-        print "udp_client_dispatch 11111111111111111111111111",str_list
         print_empty(2)
-        self.notify_console("udp_server recv from %s:%s data: '%s' len: %s bytes"%(self.ip,self.port, get_string(str_list), len(message) ))
+        self.notify_console("udp_server recv from %s data: '%s' len: %s bytes"%(self, get_string(str_list), len(message) ))
         self.on_recv_packet( message )
         self.on_disconnect()
 
 
     def send_packet(self, message):
-        print "put data 000",message
         message = pack_hex_string( message )
         if self.proto == "tcp":
-            print "put data ",message
             self.packet_queue.put_nowait( message )
         else:
-            print "sendto !!!!!!!!!!!!!!!!!!  ",message
             self.sockfd.sendto(message, (self.ip,self.port))
 
 
@@ -239,7 +242,6 @@ def regist_event( proto, event_name, func_key, funcobj ):
 
 def trigger_event( proto, event_name, *param ):
     global g_event_callback
-    print "trigger_event  ",g_event_callback
     if not proto in g_event_callback:
         return False
     if not event_name in g_event_callback[proto]:
