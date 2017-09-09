@@ -169,7 +169,7 @@ class CConnUnit( CNotifyObject ):
 
 
     def send_packet(self, message):
-        message = pack_hex_string( message )
+        message = packet_data( message )
         if self.proto == "tcp":
             self.packet_queue.put_nowait( message )
         else:
