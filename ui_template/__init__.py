@@ -215,3 +215,4 @@ class CTemplateBase(CObjectBase):
 def init_template():
         import ui_netclient
         import ui_netserver
+        import ui_packetset

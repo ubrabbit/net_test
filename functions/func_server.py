@@ -120,7 +120,7 @@ class CConnUnit( CNotifyObject ):
                             break
 
                 print_empty(2)
-                str_list = unpack_hex_string(message)
+                str_list = unpack_data(message)
                 self.notify_console(
                         "tcp_server recv from: %s data: '%s' len: %s bytes"\
                         %(get_string(self),get_string(str_list),len(message))
@@ -161,7 +161,7 @@ class CConnUnit( CNotifyObject ):
 
     def udp_client_dispatch(self, message):
         self.on_new_connect()
-        str_list = unpack_hex_string(message)
+        str_list = unpack_data(message)
         print_empty(2)
         self.notify_console("udp_server recv from %s data: '%s' len: %s bytes"%(self, get_string(str_list), len(message) ))
         self.on_recv_packet( message )

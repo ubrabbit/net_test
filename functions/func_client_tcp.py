@@ -139,7 +139,7 @@ class CTcpClient(CNotifyObject):
                 message = self.packet_queue.get_nowait()
                 self.notify_console("tcp_client_%s Send Message '%s'"%(self.get_log_flag(),message))
 
-                message = pack_hex_string( message )
+                message = packet_data( message )
                 self._lock.acquire()
                 self.notify_console(
                     "tcp_client_%s Send %s bytes to %s:%s"\
@@ -163,7 +163,7 @@ class CTcpClient(CNotifyObject):
                 if not data:
                     break
 
-                message = unpack_hex_string( data )
+                message = unpack_data( data )
                 self.notify_console(
                     "tcp_client_%s Recv Respond '%s' len=%s bytes"\
                     %( self.get_log_flag(),get_string(message),len(data) )

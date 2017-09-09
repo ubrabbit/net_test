@@ -164,9 +164,11 @@ class CInterface(object):
 
                 self.listWidget_main.insertItem(1,self.m_Parent.tr("客户端"))
                 self.listWidget_main.insertItem(2,self.m_Parent.tr("服务器"))
+                self.listWidget_main.insertItem(3,self.m_Parent.tr("压解包设置"))
 
                 self.graphStack_main.addWidget( ui_template.ui_netclient.init_template(self.m_Parent) )
                 self.graphStack_main.addWidget( ui_template.ui_netserver.init_template(self.m_Parent) )
+                self.graphStack_main.addWidget( ui_template.ui_packetset.init_template(self.m_Parent) )
 
 
         def StatusBar_Init(self):
@@ -254,6 +256,7 @@ def init_interface():
         window.show()
         app.installEventFilter(window)
 
+        print "start app, use packet mode: ",get_packet_mode()
         glist = [
                 gevent.spawn( functions.init_functions ),
                 #gevent.spawn( testprint ),

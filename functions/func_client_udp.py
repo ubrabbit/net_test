@@ -77,7 +77,7 @@ class CUdpClient(CNotifyObject):
         print "get_local_address  ",self.get_local_address()
 
         self.notify_console("udp_client_%s Send Message '%s'"%(self.idx,message))
-        message = pack_hex_string( message )
+        message = packet_data( message )
         self.notify_console(
                 "udp_client_%s Send %s bytes to %s:%s"\
                 %(self.get_log_flag(),len(message),self.ip,self.port)
@@ -87,7 +87,7 @@ class CUdpClient(CNotifyObject):
         try:
             #连接不上时windows会报10054错误
             data, address = self.sockfd.recvfrom( RECV_BUFFER_SIZE )
-            message = unpack_hex_string( data )
+            message = unpack_data( data )
             self.notify_console(
                     "udp_client_%s Recv Respond '%s' len=%s bytes"\
                     %(self.get_log_flag(), get_string(message), len(data))

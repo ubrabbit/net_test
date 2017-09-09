@@ -100,6 +100,7 @@ class CGlobalConfig(object):
                 self.all_logger_list = {}
                 self.obj_container = {}
 
+                self.packet_mode = "hex"
                 self.is_app_quit = False
 
 
@@ -130,6 +131,12 @@ class CGlobalConfig(object):
 
         def set_quit(self):
                 self.is_app_quit = True
+
+
+        def set_packet_mode(self, mode):
+            if not mode in ("hex","ascii","byte"):
+                raise Exception("set_packet_mode, error mode: %s"%mode)
+            self.packet_mode = mode
 
 
 class CNotifyObject(object):
@@ -280,6 +287,11 @@ def get_container_obj(name):
         return obj_cfg.get_container_obj(name)
 
 
+def get_packet_mode():
+        obj_cfg = get_config_obj()
+        return obj_cfg.packet_mode
+
+
 def notify_console(msg):
         time_info=time.strftime('%Y-%m-%d %H:%M:%S')
         msg="[%s] %s"%(time_info,msg)
@@ -340,3 +352,25 @@ def unpack_hex_string( base_code ):
         for value in v_list:
                 code_list.append( hex(value) )
         return code_list
+
+
+def packet_data( message ):
+    mode = get_packet_mode()
+    if mode == "hex":
+        return pack_hex_string( message )
+    elif mode == "byte":
+        msg_len = len(message)
+        return struct.pack('B'*msg_len,message)
+    else:
+        return message
+
+
+def unpack_data( message ):
+    mode = get_packet_mode()
+    if mode == "hex":
+        return unpack_hex_string( message )
+    elif mode == "byte":
+        b_len = len(message)
+        return struct.unpack('B'*b_len,message)   
+    else:
+        return message
