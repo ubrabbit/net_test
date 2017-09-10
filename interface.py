@@ -162,13 +162,19 @@ class CInterface(object):
                 #--------------------- 各个子界面的初始化
                 self.Instruction_Init()
 
-                self.listWidget_main.insertItem(1,self.m_Parent.tr("客户端"))
-                self.listWidget_main.insertItem(2,self.m_Parent.tr("服务器"))
-                self.listWidget_main.insertItem(3,self.m_Parent.tr("压解包设置"))
+                self.listWidget_main.insertItem(1,self.m_Parent.tr("压解包设置"))
+                self.listWidget_main.insertItem(2,self.m_Parent.tr("客户端"))
+                #self.listWidget_main.insertItem(3,self.m_Parent.tr("服务器"))
+                self.listWidget_main.insertItem(3,self.m_Parent.tr("TCP服务器"))
+                self.listWidget_main.insertItem(4,self.m_Parent.tr("UDP服务器"))
+
+                self.graphStack_main.addWidget( ui_template.ui_packetset.init_template(self.m_Parent) )
 
                 self.graphStack_main.addWidget( ui_template.ui_netclient.init_template(self.m_Parent) )
-                self.graphStack_main.addWidget( ui_template.ui_netserver.init_template(self.m_Parent) )
-                self.graphStack_main.addWidget( ui_template.ui_packetset.init_template(self.m_Parent) )
+                #self.graphStack_main.addWidget( ui_template.ui_netserver.init_template(self.m_Parent) )
+
+                self.graphStack_main.addWidget( ui_template.ui_server_tcp.init_template(self.m_Parent) )
+                self.graphStack_main.addWidget( ui_template.ui_server_udp.init_template(self.m_Parent) )
 
 
         def StatusBar_Init(self):

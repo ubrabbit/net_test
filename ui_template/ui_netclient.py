@@ -132,7 +132,7 @@ class CInterfaceUnit(ui_template.CTemplateBase):
         label_proto = self.new_label("选择协议：")
         label_server = self.new_label("服务器地址：")
         label_port = self.new_label("服务器端口：")
-        label_input = self.new_label("输入(忽略所有空格及换行符)：")
+        label_input = self.new_label("输入：")
         label_output = self.new_label("输出：")
 
         self.button_conn = QtGui.QPushButton(self.tr("新建连接"))

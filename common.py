@@ -101,6 +101,7 @@ class CGlobalConfig(object):
                 self.obj_container = {}
 
                 self.packet_mode = "hex"
+                self.strip_mode = []
                 self.is_app_quit = False
 
 
@@ -137,6 +138,11 @@ class CGlobalConfig(object):
             if not mode in ("hex","ascii","byte"):
                 raise Exception("set_packet_mode, error mode: %s"%mode)
             self.packet_mode = mode
+
+
+        def set_strip_mode(self, mode):
+            self.strip_mode.append( mode )
+            self.strip_mode = list( set(self.strip_mode) )
 
 
 class CNotifyObject(object):
@@ -292,6 +298,11 @@ def get_packet_mode():
         return obj_cfg.packet_mode
 
 
+def get_strip_mode():
+        obj_cfg = get_config_obj()
+        return obj_cfg.strip_mode
+
+
 def notify_console(msg):
         time_info=time.strftime('%Y-%m-%d %H:%M:%S')
         msg="[%s] %s"%(time_info,msg)
@@ -355,6 +366,10 @@ def unpack_hex_string( base_code ):
 
 
 def packet_data( message ):
+    strip_list = get_strip_mode()
+    for flag in strip_list:
+        message = message.strip( flag )
+
     mode = get_packet_mode()
     if mode == "hex":
         return pack_hex_string( message )
