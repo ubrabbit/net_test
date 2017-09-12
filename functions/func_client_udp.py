@@ -71,6 +71,7 @@ class CUdpClient(CNotifyObject):
 
     def udp_send_packet(self, message):
         address = (self.ip,int(self.port))
+
         self.sockfd = socket.socket(type=socket.SOCK_DGRAM)
         self.sockfd.connect(address)
 
@@ -83,15 +84,21 @@ class CUdpClient(CNotifyObject):
                 %(self.get_log_flag(),len(message),self.ip,self.port)
                 )
         self.sockfd.sendto(message, address)
-        
+
         try:
-            #连接不上时windows会报10054错误
-            data, address = self.sockfd.recvfrom( RECV_BUFFER_SIZE )
-            message = unpack_data( data )
+            with gevent.Timeout( 5 ):
+                #连接不上时windows会报10054错误
+                data, address = self.sockfd.recvfrom( RECV_BUFFER_SIZE )
+                message = unpack_data( data )
+                self.notify_console(
+                        "udp_client_%s Recv Respond '%s' len=%s bytes"\
+                        %(self.get_log_flag(), get_string(message), len(data))
+                        )
+        except gevent.Timeout:
             self.notify_console(
-                    "udp_client_%s Recv Respond '%s' len=%s bytes"\
-                    %(self.get_log_flag(), get_string(message), len(data))
-                    )
+                    "udp_client_%s Recv Respond timeout"\
+                    %(self.get_log_flag())
+                    )        
         except Exception,err:
             debug_print()
             self.notify_console(
@@ -129,5 +136,5 @@ if not globals().has_key("g_client_print"):
 
 
 if __name__ == "__main__":
-    udp_send_packet("127.0.0.1",10002,"BCDF")
+    udp_send_packet("127.0.0.1",1080,"BCDF")
     udp_send_packet("127.0.0.1",10002,"DDDD")

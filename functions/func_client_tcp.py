@@ -222,7 +222,7 @@ if __name__ == "__main__":
 
     glist = [
         gevent.spawn( start_tcp_listen ),
-        gevent.spawn( tcp_send_packet,"202.103.191.47",10037,test_message ),
+        gevent.spawn( tcp_send_packet,"127.0.0.1",1080,test_message ),
     ]
     gevent.joinall(glist)
 
