@@ -40,8 +40,6 @@ class CUdpContainer(CNotifyObject):
         obj_client.set_notify_buffer( g_client_print )
 
         self.connect_pool.spawn( obj_client.udp_send_packet, message )
-        if len(self.connect_pool)==1:
-            self.connect_pool.join()
 
 
 class CUdpClient(CNotifyObject):
@@ -98,7 +96,7 @@ class CUdpClient(CNotifyObject):
             self.notify_console(
                     "udp_client_%s Recv Respond timeout"\
                     %(self.get_log_flag())
-                    )        
+                    )
         except Exception,err:
             debug_print()
             self.notify_console(
