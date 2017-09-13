@@ -140,8 +140,7 @@ class CInterfaceUnit(ui_template.CTemplateBase):
             server_ip = self.get_string(self.lineEdit_tcp_server.text())
             server_port = self.get_string(self.lineEdit_tcp_port.text())
 
-            func_server.reset_buffer( self.fileEdit_tcp )
-            func_server.start_tcp_server( server_ip, server_port )
+            obj_server = func_server.start_tcp_server( server_ip, server_port, obj_buffer=self.fileEdit_tcp )
 
         elif flag_name=="tcp_client":
             client_key = self.get_string( self.combo_tcp_client.get_select_text() )

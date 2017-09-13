@@ -40,32 +40,28 @@ class CServerContainer( CNotifyObject ):
         self.connect_pool.kill()
 
 
-    def start_tcp_server(self, ip, port):
-        global g_server_print
-        self.notify_console("start_tcp_server: %s:%s"%( ip,port))
-
+    def start_tcp_server(self, ip, port, obj_buffer=None):
         if self.server_tcp:
             self.server_tcp.close()
 
         port = int(port)
         obj_server = CTcpServer()
-        obj_server.set_notify_buffer( g_server_print )
+        obj_server.set_notify_buffer( obj_buffer )
+        obj_server.notify_console("start_tcp_server: %s:%s"%( ip,port))
 
         self.server_tcp = obj_server
         self.connect_pool.spawn( obj_server.start_server, ip, port )
         return obj_server
 
 
-    def start_udp_server(self, ip, port):
-        global g_server_print
-        self.notify_console("start_udp_server: %s:%s"%( ip,port))
-
+    def start_udp_server(self, ip, port, obj_buffer=None):
         if self.server_udp:
             self.server_udp.close()
 
         port = int(port)
         obj_server = CUdpServer( "%s:%s"%(ip,port) )
-        obj_server.set_notify_buffer( g_server_print )
+        obj_server.set_notify_buffer( obj_buffer )
+        obj_server.notify_console("start_udp_server: %s:%s"%( ip,port))
 
         self.server_udp = obj_server
         self.connect_pool.spawn( obj_server.serve_forever )
@@ -76,7 +72,6 @@ class CConnUnit( CNotifyObject ):
 
     def __init__(self, sockfd, proto, ip, port):
         super(CConnUnit,self).__init__()
-        global g_server_print
 
         self.proto = proto
         self.ip = ip
@@ -86,8 +81,6 @@ class CConnUnit( CNotifyObject ):
         self.sockfd = sockfd
 
         self.need_close = False
-
-        self.set_notify_buffer( g_server_print )
 
 
     def __repr__(self):
@@ -208,6 +201,7 @@ class CTcpServer( CNotifyObject ):
             self.notify_console("New Connect From %s:%s"%(_ip, _port))
 
             obj_conn = CConnUnit(sockfd,"tcp",_ip,_port)
+            obj_conn.set_notify_buffer( self.notify_buffer )
             obj_conn.tcp_client_dispatch()
 
             self.notify_console("Connect From %s:%s Closed"%(_ip, _port))
@@ -225,6 +219,7 @@ class CUdpServer( DatagramServer, CNotifyObject ):
         _ip, _port = address
         try:
             obj_conn = CConnUnit(self.socket,"udp",_ip,_port)
+            obj_conn.set_notify_buffer( self.notify_buffer )
             obj_conn.udp_client_dispatch( message )
         except Exception,err:
             debug_print()
@@ -252,22 +247,14 @@ def trigger_event( proto, event_name, *param ):
     return True
 
 
-def reset_buffer( obj_fileEditor ):
+def start_tcp_server(ip="127.0.0.1",port=10001,obj_buffer=None):
     global g_server_container
-    global g_server_print
-    g_server_print = obj_fileEditor
-
-    g_server_container.set_notify_buffer( obj_fileEditor )
+    return g_server_container.start_tcp_server( ip, port, obj_buffer )
 
 
-def start_tcp_server(ip="127.0.0.1",port=10001):
+def start_udp_server(ip="127.0.0.1",port=10002,obj_buffer=None):
     global g_server_container
-    return g_server_container.start_tcp_server( ip, port )
-
-
-def start_udp_server(ip="127.0.0.1",port=10002):
-    global g_server_container
-    return g_server_container.start_udp_server( ip, port )
+    return g_server_container.start_udp_server( ip, port, obj_buffer )
 
 
 def start_server_listen():
@@ -283,11 +270,6 @@ def process_quit():
 if not globals().has_key("g_server_container"):
     global g_server_container
     g_server_container = CServerContainer()
-
-
-if not globals().has_key("g_server_print"):
-    global g_server_print
-    g_server_print = None
 
 
 if not globals().has_key("g_event_callback"):

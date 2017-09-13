@@ -82,7 +82,6 @@ class CInterfaceUnit(ui_template.ui_server_tcp.CInterfaceUnit):
         layout_Vector_2_0.setStretchFactor( layout_Horizon_2_1,2 )
         layout_Vector_2_0.setStretchFactor( label_udp_output,1 )
         layout_Vector_2_0.setStretchFactor(  self.fileEdit_udp,6 )
-        layout_Vector_2_0.addStretch(2)
 
         self.lineEdit_udp_server.setText("127.0.0.1")
         self.lineEdit_udp_port.setText("10002")
@@ -102,8 +101,7 @@ class CInterfaceUnit(ui_template.ui_server_tcp.CInterfaceUnit):
             server_ip = self.get_string(self.lineEdit_udp_server.text())
             server_port = self.get_string(self.lineEdit_udp_port.text())
 
-            func_server.reset_buffer( self.fileEdit_udp )
-            func_server.start_udp_server( server_ip, server_port )
+            func_server.start_udp_server( server_ip, server_port, obj_buffer=self.fileEdit_udp )
 
 
     def on_udp_packet_handler(self, obj_conn, message):
